@@ -16,6 +16,7 @@ class GeocodeResult(BaseModel):
     country: Optional[str] = ""
     latitude: float
     longitude: float
+    feature_code: Optional[str] = None
 
     @property
     def display_name(self) -> str:

@@ -3,6 +3,15 @@
 A modular FastAPI backend that provides structured, LLM-backed agricultural advice
 (via Gemini function calling) with a reusable weather-risk service.
 
+## Planning & Design Docs
+
+- [`docs/PRD.md`](docs/PRD.md) — scope, target user, non-functional requirements, roadmap
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system design, request lifecycles, layering rules
+- [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) — request/response contracts for every endpoint
+
+Scope and architecture changes should land as a diff to these files in the same PR
+as the code change, not just a chat decision.
+
 ## Architecture
 
 ```

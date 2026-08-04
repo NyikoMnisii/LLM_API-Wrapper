@@ -6,6 +6,14 @@ from app.utils.helpers import format_location_options
 from app.utils.validations import clamp_forecast_days
 
 
+def _is_populated_place(result: dict) -> bool:
+    """Open-Meteo's geocoder mixes populated places with mountains, airports, parks,
+    etc. under the same name (e.g. "Stellenbosch" the town vs. "Stellenbosch" the
+    mountain). Restricting to feature_code == PPL* before ranking/disambiguating
+    avoids false "multiple places" clarifications for those non-place duplicates."""
+    return str(result.get("feature_code") or "").startswith("PPL")
+
+
 class WeatherService:
     """Business logic for resolving farm locations and evaluating agricultural weather risk.
 
@@ -39,8 +47,11 @@ class WeatherService:
                 ),
             )
 
-        if len(results) > 1 and results[0]["name"] == results[1]["name"]:
-            options = [GeocodeResult(**result).display_name for result in results[:3]]
+        populated = [r for r in results if _is_populated_place(r)]
+        candidates = populated or results
+
+        if len(candidates) > 1 and candidates[0]["name"] == candidates[1]["name"]:
+            options = [GeocodeResult(**result).display_name for result in candidates[:3]]
             return WeatherForecast(
                 status=WeatherStatus.REQUIRES_CLARIFICATION,
                 reason=(
@@ -49,7 +60,7 @@ class WeatherService:
                 ),
             )
 
-        best_match = GeocodeResult(**results[0])
+        best_match = GeocodeResult(**candidates[0])
         daily = await self._client.forecast(best_match.latitude, best_match.longitude, days)
 
         if not daily:
