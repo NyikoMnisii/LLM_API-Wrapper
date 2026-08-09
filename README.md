@@ -1,63 +1,41 @@
-# Agrilite AI Agronomist API
+npm# AgriLite AI
 
-A modular FastAPI backend that provides structured, LLM-backed agricultural advice
-(via Gemini function calling) with a reusable weather-risk service.
-
-## Planning & Design Docs
-
-- [`docs/PRD.md`](docs/PRD.md) — scope, target user, non-functional requirements, roadmap
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system design, request lifecycles, layering rules
-- [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) — request/response contracts for every endpoint
-
-Scope and architecture changes should land as a diff to these files in the same PR
-as the code change, not just a chat decision.
-
-## Architecture
+Structured, LLM-backed agronomy advice — grounded in real weather-risk data — through
+a FastAPI backend and an Expo/React Native mobile app.
 
 ```
-app/
-├── api/          # HTTP routes only — no business logic
-├── clients/      # Thin wrappers around third-party APIs (Gemini, Open-Meteo)
-├── core/         # Config, logging, exceptions, rate limiting
-├── models/       # Pydantic schemas
-├── prompts/      # System prompts, kept out of application code
-├── services/     # Business logic; gemini_service.py is the only Gemini-aware layer
-├── tools/        # Adapts services into provider-agnostic ToolSpecs for function calling
-├── utils/        # Small, reusable helpers
-├── dependencies.py
-└── main.py       # App factory + lifespan (shared HTTP client, service wiring)
+backend/     FastAPI API (Gemini function calling + Open-Meteo weather risk)
+frontend/    Expo (React Native + TypeScript) mobile app
 ```
 
-Swapping LLM providers later means writing a new `services/<provider>_service.py`
-adapter — `tools/`, `services/weather_service.py`, and `services/tool_executor.py`
-have no Gemini-specific code.
+The two are independent projects with their own dependencies, env files, and
+lifecycles — see each folder's own README for setup:
 
-## Setup
+- [`backend/README.md`](backend/README.md) — API setup, running, testing, Docker
+- [`frontend/README.md`](frontend/README.md) — app setup, running, backend integration,
+  which screens use real data vs. local mock data
+
+## Quick start (both, local dev)
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate        # Windows
+# Terminal 1 — backend
+cd backend
+python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env         # then fill in GEMINI_API_KEY
-```
-
-## Run
-
-```bash
+copy .env.example .env    # fill in GEMINI_API_KEY
 uvicorn app.main:app --reload
+
+# Terminal 2 — frontend
+cd frontend
+npm install
+copy .env.example .env    # set EXPO_PUBLIC_API_BASE_URL to reach the backend above
+npx expo start
 ```
 
-The API is served under `/api/v1` (e.g. `POST /api/v1/chat`, `GET /api/v1/weather/forecast`,
-`GET /api/v1/health`).
+## Planning & design docs
 
-## Test
-
-```bash
-pytest
-```
-
-## Docker
-
-```bash
-docker compose up --build
-```
+Scope, architecture, and API contracts for the **backend** live in
+[`backend/docs/`](backend/docs/) and are the source of truth for what's actually
+implemented server-side — the frontend's "My Farm" / "Alerts" / "Profile" screens
+currently render local mock data because there is no backend API for farms, fields,
+crops, or alerts yet (see `backend/docs/PRD.md` §4, Out of Scope for V1).
