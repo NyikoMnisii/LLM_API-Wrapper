@@ -149,7 +149,10 @@ explicitly out of scope (see PRD's Location Resolution Strategy decision).
 
 ## 7. Known Constraints / Deliberate Non-Goals for V1
 
-- No auth layer (see PRD gap — must close before public deployment).
+- `/chat` and `/weather/forecast` require a Supabase bearer token (`app/core/auth.py`,
+  verified via JWKS — see PRD §5/§6), but there's no authorization beyond that: any
+  authenticated user can call any endpoint, and identity isn't consumed for anything
+  yet (no per-user data access, no persistence tied to `sub`).
 - No horizontal-scaling story: the in-memory geocode cache and the `slowapi` rate
   limiter are per-process. Running more than one instance would need both moved to
   shared storage (e.g. Redis) — not needed until there's a reason to scale out.

@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     gemini_api_key: str
     gemini_model: str = "gemini-3.5-flash"
 
+    supabase_url: str
+    supabase_jwt_audience: str = "authenticated"
+
     cors_origins: str = "*"
 
     log_level: str = "INFO"

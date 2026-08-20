@@ -2,9 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card } from "../../src/components";
 import { mockProfile, profileMenu } from "../../src/data/mockProfile";
+import { useAuth } from "../../src/hooks/useAuth";
 import { colors, radius, spacing, typography } from "../../src/theme";
 
 export default function ProfileScreen() {
+  const { session, signOut } = useAuth();
+  const email = session?.user.email ?? mockProfile.email;
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Profile</Text>
@@ -17,7 +21,7 @@ export default function ProfileScreen() {
         <Text style={styles.role}>{mockProfile.role}</Text>
         <View style={styles.contactRow}>
           <Ionicons name="mail-outline" size={13} color={colors.textMuted} />
-          <Text style={styles.contactText}>{mockProfile.email}</Text>
+          <Text style={styles.contactText}>{email}</Text>
         </View>
         <View style={styles.contactRow}>
           <Ionicons name="call-outline" size={13} color={colors.textMuted} />
@@ -28,7 +32,7 @@ export default function ProfileScreen() {
 
       <View style={styles.menu}>
         {profileMenu.map((item) => (
-          <Pressable key={item.id}>
+          <Pressable key={item.id} onPress={item.id === "logout" ? signOut : undefined}>
             <Card style={styles.menuRow}>
               <View style={[styles.menuIcon, item.danger && styles.menuIconDanger]}>
                 <Ionicons name={item.icon} size={18} color={item.danger ? colors.danger : colors.primary} />

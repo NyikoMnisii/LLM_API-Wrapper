@@ -6,6 +6,17 @@
 > before an endpoint is built or changed, per the PRD's change process.
 > Last updated: 2026-08-06. Base path: `/api/v1` (configurable via `API_PREFIX`).
 
+## Authentication
+
+`POST /chat` and `GET /weather/forecast` require `Authorization: Bearer <token>`,
+where `<token>` is a Supabase access token (from `supabase.auth.getSession()` on the
+client — the frontend attaches this automatically, see `frontend/src/api/client.ts`).
+The token is verified against the Supabase project's JWKS (`app/core/auth.py`); a
+missing, malformed, or invalid/expired token gets a `401` in the standard error
+shape (see Error Contract). `GET /health`, `/health/ready` are unauthenticated.
+There is no authorization beyond "is this a valid Supabase user" — no per-user data
+access is currently gated by identity.
+
 ## POST /chat
 
 Structured, weather-grounded agronomy advice from a single conversational turn.
@@ -135,6 +146,7 @@ Raised application errors (`app/core/exceptions.py`) are returned as:
 | `ExternalAPIError` | 502 | `OpenMeteoClient` on a failed geocode/forecast HTTP call |
 | `ToolExecutionError` | 500 | `ToolExecutor` when Gemini requests an unregistered tool name |
 | `LLMGenerationError` | 502 | `GeminiService` on a malformed/empty/unparsable model response |
+| `AuthenticationError` | 401 | Missing/malformed `Authorization` header, or an invalid/expired Supabase access token |
 | `InvalidRequestError` | 422 | `GET /weather/forecast` when neither `location` nor `latitude`+`longitude` is provided |
 | any other unhandled `Exception` | 500 | generic fallback, logged server-side with full traceback |
 | `RateLimitExceeded` (slowapi) | 429 | per-IP rate limit exceeded |

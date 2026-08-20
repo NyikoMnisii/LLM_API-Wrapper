@@ -2,6 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 
+from app.core.auth import AuthenticatedUser, get_current_user
 from app.core.exceptions import InvalidRequestError
 from app.dependencies import get_weather_service
 from app.models.weather import WeatherForecast
@@ -20,6 +21,7 @@ async def get_forecast(
     ),
     days: int = Query(3, ge=1, le=7),
     weather_service: WeatherService = Depends(get_weather_service),
+    _user: AuthenticatedUser = Depends(get_current_user),
 ) -> WeatherForecast:
     if latitude is not None and longitude is not None:
         return await weather_service.get_agricultural_forecast_by_coordinates(

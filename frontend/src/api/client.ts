@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { supabase } from "../lib/supabase";
 import type { ApiErrorBody } from "./types";
 
 /**
@@ -25,11 +26,19 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${BASE_URL}${API_PREFIX}${path}`;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   let response: Response;
   try {
     response = await fetch(url, {
       ...init,
-      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+      headers: {
+        "Content-Type": "application/json",
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
     });
   } catch {
     throw new ApiError("Couldn't reach AgriLite AI. Check your connection and try again.", 0);

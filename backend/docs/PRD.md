@@ -29,6 +29,7 @@ a separate weather source themselves.
 | Coordinate-based location (home-screen forecast, "here" by default in chat) | via both above | Implemented (2026-08-06) |
 | Health/readiness checks | `GET /api/v1/health`, `/health/ready` | Implemented |
 | Rate limiting, structured logging, centralized config, typed errors | cross-cutting | Implemented |
+| Bearer-token authentication (Supabase JWT) on `/chat` and `/weather/forecast` | cross-cutting | Implemented (2026-08-20) |
 | Dockerized deployment | `Dockerfile`, `docker-compose.yml` | Implemented |
 
 Full request/response shapes are in [`API_CONTRACTS.md`](./API_CONTRACTS.md); the
@@ -100,15 +101,23 @@ applied to V1.
 | Rate limiting | Per-IP, configurable requests/minute (default 60) | Via `slowapi`, in-memory — see architecture note on scaling |
 | Caching | Geocode results cached in-memory, 1h TTL (configurable) | Avoids redundant Open-Meteo calls for repeat locations |
 | Observability | Structured logs with per-request `X-Request-ID` | No metrics/tracing backend wired yet |
-| Security | CORS configurable via env; **no authentication/authorization** | Explicit gap — must be addressed before any public deployment |
+| Security | CORS configurable via env; `/chat` and `/weather/forecast` require a valid Supabase-issued bearer token | No fine-grained authorization yet — any authenticated user may call any endpoint; identity isn't used for anything beyond the auth gate itself |
 
 ## 6. Explicit Assumptions & Open Questions
 
 Recorded so they aren't silently treated as decisions later:
 
 - No persistence layer exists. The backend is stateless — the client resends full
-  chat history on every `/chat` call rather than the server storing it.
-- No API-key or user-auth layer protects the public endpoints yet.
+  chat history on every `/chat` call rather than the server storing it. Note this
+  is now slightly in tension with having real user identity available (2026-08-20)
+  — a future decision to persist chat history per-user is a PRD diff of its own,
+  not an automatic consequence of authentication existing.
+- `POST /chat` and `GET /weather/forecast` require `Authorization: Bearer <token>`,
+  verified against the Supabase project's JWKS (`app/core/auth.py`) — no shared
+  secret held server-side, no service-role key needed for verification alone.
+  `GET /health*` remain unauthenticated for infra probes. There is currently no
+  authorization layer beyond "is this a valid Supabase user" — every authenticated
+  user can call every protected endpoint identically.
 - `GEMINI_MODEL` defaults to `gemini-3.5-flash`, inherited from the original
   prototype. Not independently verified against Gemini's current model catalog —
   confirm this is still a valid model id before relying on it in production.
