@@ -93,51 +93,13 @@ create type public.device_platform  as enum ('ios', 'android', 'web');
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
-
--- Centralizes the "is this user allowed to see this farm's data" check so RLS
--- policies stay one-liners. SECURITY DEFINER so it can read farm_members
--- regardless of the caller's own RLS grants on that table (avoids recursive
--- policy evaluation on farm_members itself). search_path is pinned empty and
--- every reference is schema-qualified, so a malicious object earlier in some
--- other search_path can't get resolved into this function by mistake.
-create or replace function private.is_farm_member(p_farm_id uuid)
-returns boolean
-language sql
-security definer
-set search_path = ''
-stable
-as $$
-  select exists (
-    select 1
-    from public.farm_members fm
-    where fm.farm_id = p_farm_id
-      and fm.user_id = (select auth.uid())
-  );
-$$;
-
--- Same idea, restricted to roles allowed to write (not just view).
-create or replace function private.is_farm_editor(p_farm_id uuid)
-returns boolean
-language sql
-security definer
-set search_path = ''
-stable
-as $$
-  select exists (
-    select 1
-    from public.farm_members fm
-    where fm.farm_id = p_farm_id
-      and fm.user_id = (select auth.uid())
-      and fm.role in ('owner', 'manager', 'worker')
-  );
-$$;
-
 
 -- ----------------------------------------------------------------------------
 -- profiles — 1:1 extension of auth.users
@@ -179,6 +141,11 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Pure trigger function (references NEW, only valid in trigger context) — not
+-- meant to be called directly as /rest/v1/rpc/handle_new_user. Revoke the
+-- default PUBLIC execute grant so anon/authenticated can't invoke it as an RPC.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 
 -- ----------------------------------------------------------------------------
@@ -242,6 +209,9 @@ $$;
 create trigger trg_farms_seed_owner_membership
   after insert on public.farms
   for each row execute procedure public.handle_new_farm();
+
+-- Same as handle_new_user above — pure trigger function, not an RPC.
+revoke execute on function public.handle_new_farm() from public, anon, authenticated;
 
 
 -- ----------------------------------------------------------------------------
@@ -318,6 +288,7 @@ create trigger trg_crops_updated_at
 create or replace function public.set_crop_farm_id()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   select farm_id into new.farm_id from public.fields where id = new.field_id;
@@ -451,6 +422,7 @@ create index idx_chat_messages_conversation_id on public.chat_messages (conversa
 create or replace function public.touch_conversation()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   update public.chat_conversations set updated_at = now() where id = new.conversation_id;
@@ -506,6 +478,44 @@ create index idx_notification_devices_user_id on public.notification_devices (us
 -- ============================================================================
 -- Row Level Security
 -- ============================================================================
+
+-- Centralizes the "is this user allowed to see this farm's data" check so RLS
+-- policies stay one-liners. SECURITY DEFINER so it can read farm_members
+-- regardless of the caller's own RLS grants on that table (avoids recursive
+-- policy evaluation on farm_members itself). search_path is pinned empty and
+-- every reference is schema-qualified, so a malicious object earlier in some
+-- other search_path can't get resolved into this function by mistake.
+create or replace function private.is_farm_member(p_farm_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1
+    from public.farm_members fm
+    where fm.farm_id = p_farm_id
+      and fm.user_id = (select auth.uid())
+  );
+$$;
+
+-- Same idea, restricted to roles allowed to write (not just view).
+create or replace function private.is_farm_editor(p_farm_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1
+    from public.farm_members fm
+    where fm.farm_id = p_farm_id
+      and fm.user_id = (select auth.uid())
+      and fm.role in ('owner', 'manager', 'worker')
+  );
+$$;
 
 alter table public.profiles              enable row level security;
 alter table public.farms                 enable row level security;
