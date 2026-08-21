@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, spacing } from "../theme";
+import { spacing, useTheme, type ColorPalette } from "../theme";
 
 type Props = {
   title?: string;
@@ -11,6 +12,8 @@ type Props = {
 };
 
 export function ScreenHeader({ title, showBack, showBrand, right }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.row}>
       <View style={styles.left}>
@@ -40,6 +43,8 @@ export function HeaderIconButton({
   onPress?: () => void;
   badge?: number;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <Pressable onPress={onPress} hitSlop={10} style={styles.iconBtn}>
       <Ionicons name={name} size={22} color={colors.text} />
@@ -52,41 +57,43 @@ export function HeaderIconButton({
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-  },
-  left: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  right: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  brand: { fontSize: 22, fontWeight: "800", color: colors.text },
-  title: { fontSize: 18, fontWeight: "700", color: colors.text },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  badgeDot: {
-    position: "absolute",
-    top: 2,
-    right: 2,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: colors.textOnPrimary,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
+    },
+    left: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    right: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    brand: { fontSize: 22, fontWeight: "800", color: colors.text },
+    title: { fontSize: 18, fontWeight: "700", color: colors.text },
+    iconBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    badgeDot: {
+      position: "absolute",
+      top: 2,
+      right: 2,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 3,
+    },
+    badgeText: {
+      fontSize: 10,
+      fontWeight: "800",
+      color: colors.textOnPrimary,
+    },
+  });
+}

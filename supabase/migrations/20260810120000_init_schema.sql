@@ -546,6 +546,14 @@ create policy "profiles_update_own" on public.profiles
 -- manager can update.
 create policy "farms_select_members" on public.farms
   for select using (private.is_farm_member(id));
+-- INSERT ... RETURNING (the frontend's `.insert().select()` to get the new
+-- farm's id back) requires the new row to also satisfy a SELECT policy.
+-- farms_select_members alone can't do that here: it depends on a
+-- farm_members row that trg_farms_seed_owner_membership (AFTER INSERT) hasn't
+-- created yet at RETURNING-evaluation time. This direct owner check doesn't
+-- depend on the trigger having run.
+create policy "farms_select_own" on public.farms
+  for select using (owner_id = (select auth.uid()));
 create policy "farms_insert_owner" on public.farms
   for insert with check (owner_id = (select auth.uid()));
 create policy "farms_update_owner_manager" on public.farms

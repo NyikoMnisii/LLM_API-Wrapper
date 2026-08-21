@@ -1,69 +1,86 @@
 import { router } from "expo-router";
-import { useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { Button, ScreenHeader } from "../../src/components";
-import { mockFarm } from "../../src/data/mockFarm";
-import { colors, radius, spacing, typography } from "../../src/theme";
+import { useMemo, useState } from "react";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { updateFarm } from "../../src/api/supabase/farms";
+import type { Farm } from "../../src/api/supabase/types";
+import { Button, FormField, ScreenHeader } from "../../src/components";
+import { useFarm } from "../../src/hooks/useFarm";
+import { spacing, useTheme, type ColorPalette } from "../../src/theme";
 
 export default function EditFarmScreen() {
-  const [name, setName] = useState(mockFarm.name);
-  const [location, setLocation] = useState(mockFarm.location);
-  const [hectares, setHectares] = useState(String(mockFarm.hectares));
-  const [farmType, setFarmType] = useState(mockFarm.farmType);
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const { farm, loading, refresh } = useFarm();
 
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title="Edit Farm" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Field label="Farm Name" value={name} onChangeText={setName} />
-        <Field label="Location" value={location} onChangeText={setLocation} />
-        <Field label="Total Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" />
-        <Field label="Farm Type" value={farmType} onChangeText={setFarmType} />
-
-        <Button label="Save Changes" onPress={() => router.back()} style={{ marginTop: spacing.lg }} />
-      </ScrollView>
+      {loading || !farm ? (
+        <View style={styles.centered}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <EditFarmForm farm={farm} onSaved={refresh} />
+      )}
     </View>
   );
 }
 
-function Field({
-  label,
-  value,
-  onChangeText,
-  keyboardType,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  keyboardType?: "default" | "decimal-pad";
-}) {
+function EditFarmForm({ farm, onSaved }: { farm: Farm; onSaved: () => Promise<void> }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [name, setName] = useState(farm.name);
+  const [location, setLocation] = useState(farm.location_label ?? "");
+  const [hectares, setHectares] = useState(farm.total_hectares != null ? String(farm.total_hectares) : "");
+  const [farmType, setFarmType] = useState(farm.farm_type ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    if (!name.trim()) {
+      setError("Farm name is required.");
+      return;
+    }
+    const parsedHectares = hectares.trim() ? Number(hectares) : null;
+    if (parsedHectares !== null && !Number.isFinite(parsedHectares)) {
+      setError("Total area must be a number.");
+      return;
+    }
+    setError(null);
+    setSaving(true);
+    try {
+      await updateFarm(farm.id, {
+        name: name.trim(),
+        location_label: location.trim() || null,
+        total_hectares: parsedHectares,
+        farm_type: farmType.trim() || null,
+      });
+      await onSaved();
+      router.back();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save changes right now.");
+      setSaving(false);
+    }
+  }
+
   return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType}
-        placeholderTextColor={colors.textMuted}
-      />
-    </View>
+    <ScrollView contentContainerStyle={styles.content}>
+      <FormField label="Farm Name" value={name} onChangeText={setName} />
+      <FormField label="Location" value={location} onChangeText={setLocation} />
+      <FormField label="Total Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" />
+      <FormField label="Farm Type" value={farmType} onChangeText={setFarmType} />
+
+      {error ? <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text> : null}
+
+      <Button label="Save Changes" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
-  field: { gap: spacing.sm },
-  label: { ...typography.captionStrong },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    color: colors.text,
-    fontSize: 14,
-  },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    centered: { flex: 1, alignItems: "center", justifyContent: "center" },
+    content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
+  });
+}

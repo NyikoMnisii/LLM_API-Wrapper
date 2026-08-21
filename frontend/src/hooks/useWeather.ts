@@ -2,23 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { getForecastByCoordinates } from "../api/weather";
 import type { WeatherForecast } from "../api/types";
 import { ApiError } from "../api/client";
-import { FALLBACK_LOCATION, FALLBACK_LOCATION_LABEL, useDeviceLocation } from "./useLocation";
+import { useResolvedLocation } from "./useResolvedLocation";
 
 export function useWeather(days = 5) {
-  const { location, isFallback, loading: locating } = useDeviceLocation();
+  const { latitude, longitude, label, loading: locating, isDeviceFallback } = useResolvedLocation();
   const [forecast, setForecast] = useState<WeatherForecast | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchForecast = useCallback(async () => {
-    if (!location) return;
+    if (latitude == null || longitude == null) return;
     setLoading(true);
     setError(null);
     try {
       const data = await getForecastByCoordinates({
-        latitude: location.latitude,
-        longitude: location.longitude,
-        locationLabel: isFallback ? FALLBACK_LOCATION_LABEL : undefined,
+        latitude,
+        longitude,
+        locationLabel: label ?? undefined,
         days,
       });
       setForecast(data);
@@ -27,7 +27,7 @@ export function useWeather(days = 5) {
     } finally {
       setLoading(false);
     }
-  }, [location, isFallback, days]);
+  }, [latitude, longitude, label, days]);
 
   useEffect(() => {
     fetchForecast();
@@ -38,7 +38,8 @@ export function useWeather(days = 5) {
     error,
     loading: locating || loading,
     refresh: fetchForecast,
-    coordinates: location ?? FALLBACK_LOCATION,
-    locationLabel: isFallback ? FALLBACK_LOCATION_LABEL : undefined,
+    coordinates: latitude != null && longitude != null ? { latitude, longitude } : null,
+    locationLabel: label,
+    isFallback: isDeviceFallback,
   };
 }

@@ -11,11 +11,13 @@ import {
   View,
 } from "react-native";
 import { Card, ForecastDayPill, HeaderIconButton, SectionHeader, WeatherGauge } from "../../src/components";
-import { mockAlerts } from "../../src/data/mockAlerts";
-import { mockRecentChats } from "../../src/data/mockChats";
+import { useUnreadAlertCount } from "../../src/hooks/useAlerts";
+import { useChatConversations } from "../../src/hooks/useChatConversations";
+import { useFarm } from "../../src/hooks/useFarm";
+import { useResolvedLocation } from "../../src/hooks/useResolvedLocation";
 import { useWeather } from "../../src/hooks/useWeather";
-import { colors, radius, spacing, typography } from "../../src/theme";
-import { dayLabel } from "../../src/utils/date";
+import { radius, spacing, useTheme, type ColorPalette, type Typography } from "../../src/theme";
+import { dayLabel, formatDateWithYear } from "../../src/utils/date";
 
 function conditionFor(precipToday: number, frost: boolean, fungalRisk: boolean) {
   if (frost) return { label: "Frost Risk", icon: "snow" as const };
@@ -33,8 +35,13 @@ function todayLabel() {
 }
 
 export default function HomeScreen() {
-  const { forecast, error, loading, refresh, locationLabel } = useWeather(5);
-  const unreadAlerts = mockAlerts.filter((a) => !a.read).length;
+  const { forecast, error, loading, refresh, locationLabel, isFallback } = useWeather(5);
+  const { isManual, loading: locatingLabel } = useResolvedLocation();
+  const { colors, typography } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, typography), [colors, typography]);
+  const { farm } = useFarm();
+  const { count: unreadAlerts } = useUnreadAlertCount(farm?.id);
+  const { conversations: recentChats } = useChatConversations(3);
 
   const condition = useMemo(() => {
     if (!forecast || forecast.status !== "SUCCESS") return null;
@@ -61,19 +68,26 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <View style={styles.locationRow}>
+      <Pressable style={styles.locationRow} onPress={() => router.push("/location/search")}>
         <View style={styles.locationLeft}>
           <Ionicons name="location" size={16} color={colors.primary} />
           <View>
-            <Text style={styles.locationName}>{locationLabel ?? "Your Location"}</Text>
-            <Text style={styles.locationSub}>Current Location</Text>
+            <Text style={styles.locationName}>
+              {locatingLabel ? "Locating…" : locationLabel ?? "Location unavailable"}
+            </Text>
+            <View style={styles.locationSubRow}>
+              <Text style={styles.locationSub}>
+                {isManual ? "Manually set" : isFallback ? "Approximate Location" : "Current Location"}
+              </Text>
+              <Ionicons name="chevron-down" size={11} color={colors.textMuted} />
+            </View>
           </View>
         </View>
         <View style={styles.locationRight}>
           <Text style={styles.dateText}>{todayLabel()}</Text>
           <View style={styles.liveDot} />
         </View>
-      </View>
+      </Pressable>
 
       {loading && !forecast ? (
         <Card style={styles.stateCard}>
@@ -173,102 +187,109 @@ export default function HomeScreen() {
         </Pressable>
       </Card>
 
-      <SectionHeader icon="chatbubble-ellipses-outline" title="Recent Chats" actionLabel="View all" onAction={() => router.push("/chat")} />
-      <View style={{ gap: spacing.sm }}>
-        {mockRecentChats.map((chat) => (
-          <Pressable key={chat.id} onPress={() => router.push("/chat")}>
-            <Card style={styles.chatRow}>
-              <View style={styles.chatIcon}>
-                <Ionicons name="chatbubble-ellipses" size={16} color={colors.primary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.chatQuestion} numberOfLines={1}>{chat.question}</Text>
-                <Text style={styles.chatMeta}>{chat.location} • {chat.time}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-            </Card>
-          </Pressable>
-        ))}
-      </View>
+      {recentChats.length > 0 ? (
+        <>
+          <SectionHeader icon="chatbubble-ellipses-outline" title="Recent Chats" actionLabel="View all" onAction={() => router.push("/chat")} />
+          <View style={{ gap: spacing.sm }}>
+            {recentChats.map((chat) => (
+              <Pressable key={chat.id} onPress={() => router.push({ pathname: "/chat", params: { id: chat.id } })}>
+                <Card style={styles.chatRow}>
+                  <View style={styles.chatIcon}>
+                    <Ionicons name="chatbubble-ellipses" size={16} color={colors.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.chatQuestion} numberOfLines={1}>{chat.title ?? "Untitled chat"}</Text>
+                    <Text style={styles.chatMeta}>{formatDateWithYear(chat.updated_at)}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+                </Card>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      ) : null}
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2, gap: spacing.lg },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  brand: { fontSize: 22, fontWeight: "800", color: colors.text },
-  headerIcons: { flexDirection: "row", gap: spacing.sm },
+function makeStyles(colors: ColorPalette, typography: Typography) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2, gap: spacing.lg },
+    header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    brand: { fontSize: 22, fontWeight: "800", color: colors.text },
+    headerIcons: { flexDirection: "row", gap: spacing.sm },
 
-  locationRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  locationLeft: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  locationName: { ...typography.bodyStrong },
-  locationSub: { ...typography.caption },
-  locationRight: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  dateText: { ...typography.caption },
-  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary },
+    locationRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    locationLeft: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    locationName: { ...typography.bodyStrong },
+    locationSubRow: { flexDirection: "row", alignItems: "center", gap: 3 },
+    locationSub: { ...typography.caption },
+    locationRight: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    dateText: { ...typography.caption },
+    liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary },
 
-  stateCard: { alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xxl },
-  stateText: { ...typography.body, textAlign: "center" },
-  retryText: { color: colors.primary, fontWeight: "700", fontSize: 13 },
+    stateCard: { alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xxl },
+    stateText: { ...typography.body, textAlign: "center" },
+    retryText: { color: colors.primary, fontWeight: "700", fontSize: 13 },
 
-  weatherCard: { gap: spacing.lg },
-  gaugeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  conditionCol: { flex: 1, alignItems: "center", gap: spacing.sm },
-  conditionText: { ...typography.h3, textAlign: "center" },
-  metricsRow: { flexDirection: "row", gap: spacing.sm },
-  metric: { flex: 1, alignItems: "center", gap: 2, backgroundColor: colors.surfaceAlt, borderRadius: radius.sm, paddingVertical: spacing.sm },
-  metricValue: { ...typography.bodyStrong, fontSize: 13 },
-  metricLabel: { ...typography.caption },
+    weatherCard: { gap: spacing.lg },
+    gaugeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    conditionCol: { flex: 1, alignItems: "center", gap: spacing.sm },
+    conditionText: { ...typography.h3, textAlign: "center" },
+    metricsRow: { flexDirection: "row", gap: spacing.sm },
+    metric: { flex: 1, alignItems: "center", gap: 2, backgroundColor: colors.surfaceAlt, borderRadius: radius.sm, paddingVertical: spacing.sm },
+    metricValue: { ...typography.bodyStrong, fontSize: 13 },
+    metricLabel: { ...typography.caption },
 
-  forecastStrip: { flexGrow: 0 },
-  forecastMore: {
-    width: 64,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primaryMuted,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.md,
-    gap: spacing.xs,
-  },
-  forecastMoreText: { fontSize: 10, fontWeight: "700", color: colors.primary, textAlign: "center" },
+    forecastStrip: { flexGrow: 0 },
+    forecastMore: {
+      width: 64,
+      borderRadius: radius.lg,
+      backgroundColor: colors.primaryMuted,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: spacing.md,
+      gap: spacing.xs,
+    },
+    forecastMoreText: { fontSize: 10, fontWeight: "700", color: colors.primary, textAlign: "center" },
 
-  aiCard: { backgroundColor: colors.surface, gap: spacing.lg },
-  aiRow: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  aiTextCol: { flex: 1, gap: spacing.sm },
-  aiTag: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  aiTagText: { fontSize: 12, fontWeight: "700", color: colors.primary },
-  aiTitle: { fontSize: 20, fontWeight: "800", color: colors.text, lineHeight: 26 },
-  aiSubtitle: { ...typography.body, fontSize: 13, lineHeight: 18 },
-  aiIconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  aiButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingVertical: 13,
-  },
-  aiButtonText: { fontWeight: "700", color: colors.textOnPrimary, fontSize: 14 },
+    aiCard: { backgroundColor: colors.surface, gap: spacing.lg },
+    aiRow: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
+    aiTextCol: { flex: 1, gap: spacing.sm },
+    aiTag: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    aiTagText: { fontSize: 12, fontWeight: "700", color: colors.primary },
+    aiTitle: { fontSize: 20, fontWeight: "800", color: colors.text, lineHeight: 26 },
+    aiSubtitle: { ...typography.body, fontSize: 13, lineHeight: 18 },
+    aiIconWrap: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    aiButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.sm,
+      backgroundColor: colors.primary,
+      borderRadius: radius.pill,
+      paddingVertical: 13,
+    },
+    aiButtonText: { fontWeight: "700", color: colors.textOnPrimary, fontSize: 14 },
 
-  chatRow: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.md },
-  chatIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primaryMuted,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chatQuestion: { ...typography.bodyStrong, fontSize: 13 },
-  chatMeta: { ...typography.caption, marginTop: 2 },
-});
+    chatRow: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.md },
+    chatIcon: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: colors.primaryMuted,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    chatQuestion: { ...typography.bodyStrong, fontSize: 13 },
+    chatMeta: { ...typography.caption, marginTop: 2 },
+  });
+}

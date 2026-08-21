@@ -1,12 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, ScreenHeader } from "../src/components";
 import { useWeather } from "../src/hooks/useWeather";
-import { colors, spacing, typography } from "../src/theme";
+import { spacing, useTheme, type ColorPalette, type Typography } from "../src/theme";
 import { dayLabel, formatFullDate } from "../src/utils/date";
 
 export default function ForecastScreen() {
   const { forecast, loading, error, locationLabel } = useWeather(7);
+  const { colors, typography } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, typography), [colors, typography]);
 
   return (
     <View style={styles.screen}>
@@ -49,18 +52,20 @@ export default function ForecastScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
-  location: { ...typography.caption, marginBottom: spacing.xs },
-  stateWrap: { paddingVertical: spacing.xxxl, alignItems: "center" },
-  errorText: { ...typography.body, textAlign: "center", marginTop: spacing.xl },
-  row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  dayCol: { width: 84 },
-  dayLabel: { ...typography.bodyStrong },
-  dateLabel: { ...typography.caption },
-  precip: { flex: 1, ...typography.caption, fontSize: 12 },
-  tempCol: { flexDirection: "row", gap: spacing.sm, width: 60, justifyContent: "flex-end" },
-  maxTemp: { ...typography.bodyStrong },
-  minTemp: { ...typography.caption },
-});
+function makeStyles(colors: ColorPalette, typography: Typography) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
+    location: { ...typography.caption, marginBottom: spacing.xs },
+    stateWrap: { paddingVertical: spacing.xxxl, alignItems: "center" },
+    errorText: { ...typography.body, textAlign: "center", marginTop: spacing.xl },
+    row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    dayCol: { width: 84 },
+    dayLabel: { ...typography.bodyStrong },
+    dateLabel: { ...typography.caption },
+    precip: { flex: 1, ...typography.caption, fontSize: 12 },
+    tempCol: { flexDirection: "row", gap: spacing.sm, width: 60, justifyContent: "flex-end" },
+    maxTemp: { ...typography.bodyStrong },
+    minTemp: { ...typography.caption },
+  });
+}

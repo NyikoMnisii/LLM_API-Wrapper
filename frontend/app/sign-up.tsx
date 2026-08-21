@@ -1,13 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button } from "../src/components";
 import { useAuth } from "../src/hooks/useAuth";
-import { colors, radius, spacing, typography } from "../src/theme";
+import { radius, spacing, useTheme, type ColorPalette, type Typography } from "../src/theme";
 
 export default function SignUpScreen() {
   const { signUp } = useAuth();
+  const { colors, typography } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, typography), [colors, typography]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -116,38 +118,40 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { flexGrow: 1, justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
-  header: { gap: 4, marginBottom: spacing.sm },
-  title: { ...typography.display },
-  subtitle: { ...typography.body },
-  field: { gap: spacing.sm },
-  label: { ...typography.captionStrong },
-  input: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    color: colors.text,
-    fontSize: 14,
-  },
-  error: { ...typography.caption, color: colors.danger },
-  submit: { marginTop: spacing.sm },
-  link: { alignSelf: "center", marginTop: spacing.md },
-  linkText: { ...typography.caption },
-  linkTextStrong: { color: colors.primary, fontWeight: "700" },
+function makeStyles(colors: ColorPalette, typography: Typography) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { flexGrow: 1, justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
+    header: { gap: 4, marginBottom: spacing.sm },
+    title: { ...typography.display },
+    subtitle: { ...typography.body },
+    field: { gap: spacing.sm },
+    label: { ...typography.captionStrong },
+    input: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      color: colors.text,
+      fontSize: 14,
+    },
+    error: { ...typography.caption, color: colors.danger },
+    submit: { marginTop: spacing.sm },
+    link: { alignSelf: "center", marginTop: spacing.md },
+    linkText: { ...typography.caption },
+    linkTextStrong: { color: colors.primary, fontWeight: "700" },
 
-  confirmScreen: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.xxxl,
-    gap: spacing.sm,
-  },
-  confirmTitle: { ...typography.h1, marginTop: spacing.md },
-  confirmBody: { ...typography.body, textAlign: "center" },
-});
+    confirmScreen: {
+      flex: 1,
+      backgroundColor: colors.background,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: spacing.xxxl,
+      gap: spacing.sm,
+    },
+    confirmTitle: { ...typography.h1, marginTop: spacing.md },
+    confirmBody: { ...typography.body, textAlign: "center" },
+  });
+}

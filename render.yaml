@@ -1,0 +1,29 @@
+services:
+  - name: agrilite-backend
+    type: web
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      # Secret — enter the real value in the Render dashboard when creating
+      # this Blueprint. Never committed here.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      # Public project URL (see supabase/migrations) — only used to verify
+      # tokens against the project's public JWKS, so not a secret.
+      - key: SUPABASE_URL
+        value: https://mbsrybpquylcivujheqn.supabase.co
+      # Tighten this to the deployed Vercel URL once known (e.g.
+      # https://your-app.vercel.app) — "*" is safe for a bearer-token API
+      # (no cookies to leak via CORS) but a specific origin is better
+      # defense in depth.
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_JSON
+        value: "true"
