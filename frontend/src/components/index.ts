@@ -1,6 +1,8 @@
 export { Card } from "./Card";
 export { Badge } from "./Badge";
 export { Button } from "./Button";
+export { FormField } from "./FormField";
+export { ChipPicker, type ChipOption } from "./ChipPicker";
 export { ScreenHeader, HeaderIconButton } from "./ScreenHeader";
 export { SectionHeader } from "./SectionHeader";
 export { StatTile } from "./StatTile";

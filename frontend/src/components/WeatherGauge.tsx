@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from "react-native-svg";
-import { colors } from "../theme";
+import { useTheme, type ColorPalette } from "../theme";
 
 const SIZE = 240;
 const STROKE = 14;
@@ -37,6 +38,8 @@ export function WeatherGauge({
   current: number;
   unit?: string;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const clamped = Math.min(Math.max(current, min), max);
   const ratio = max === min ? 1 : (clamped - min) / (max - min);
   const progressAngle = START_ANGLE + SWEEP * ratio;
@@ -88,11 +91,13 @@ export function WeatherGauge({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { width: SIZE, height: SIZE, alignItems: "center", justifyContent: "center" },
-  centerLabel: { position: "absolute", alignItems: "center", justifyContent: "center" },
-  currentValue: { fontSize: 46, fontWeight: "800", color: colors.text },
-  edgeLabel: { position: "absolute", fontSize: 13, fontWeight: "700", color: colors.textSecondary, bottom: 18 },
-  minLabel: { left: 6 },
-  maxLabel: { right: 6 },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    wrap: { width: SIZE, height: SIZE, alignItems: "center", justifyContent: "center" },
+    centerLabel: { position: "absolute", alignItems: "center", justifyContent: "center" },
+    currentValue: { fontSize: 46, fontWeight: "800", color: colors.text },
+    edgeLabel: { position: "absolute", fontSize: 13, fontWeight: "700", color: colors.textSecondary, bottom: 18 },
+    minLabel: { left: 6 },
+    maxLabel: { right: 6 },
+  });
+}

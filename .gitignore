@@ -4,6 +4,7 @@
 
 # Coding Assistants
 .claude
+.agents
 
 # Python files
 __pycache__/
@@ -12,3 +13,6 @@ __pycache__/
 .venv/
 env/
 venv/
+
+# Supabase CLI
+supabase/.temp/

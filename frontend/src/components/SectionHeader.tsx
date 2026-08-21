@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, spacing } from "../theme";
+import { spacing, useTheme, type ColorPalette } from "../theme";
 
 export function SectionHeader({
   icon,
@@ -13,6 +14,8 @@ export function SectionHeader({
   actionLabel?: string;
   onAction?: () => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.row}>
       <View style={styles.left}>
@@ -29,15 +32,17 @@ export function SectionHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing.md,
-  },
-  left: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  title: { fontSize: 17, fontWeight: "700", color: colors.text },
-  action: { flexDirection: "row", alignItems: "center", gap: 2 },
-  actionLabel: { fontSize: 13, fontWeight: "600", color: colors.primary },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: spacing.md,
+    },
+    left: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    title: { fontSize: 17, fontWeight: "700", color: colors.text },
+    action: { flexDirection: "row", alignItems: "center", gap: 2 },
+    actionLabel: { fontSize: 13, fontWeight: "600", color: colors.primary },
+  });
+}

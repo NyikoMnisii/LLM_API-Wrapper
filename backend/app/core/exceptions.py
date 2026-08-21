@@ -49,6 +49,11 @@ class LLMGenerationError(AppError):
     detail = "The language model failed to generate a valid response."
 
 
+class AuthenticationError(AppError):
+    status_code = 401
+    detail = "Missing or invalid access token."
+
+
 async def _app_error_handler(request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
 

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, spacing } from "../theme";
+import { spacing, useTheme, type ColorPalette } from "../theme";
 
 export function EmptyState({
   icon,
@@ -11,6 +12,8 @@ export function EmptyState({
   title: string;
   message?: string;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.wrap}>
       <View style={styles.iconCircle}>
@@ -22,17 +25,19 @@ export function EmptyState({
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { alignItems: "center", justifyContent: "center", paddingVertical: spacing.xxxl, paddingHorizontal: spacing.xxl },
-  iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primaryMuted,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.lg,
-  },
-  title: { fontSize: 15, fontWeight: "700", color: colors.text, marginBottom: spacing.xs },
-  message: { fontSize: 13, color: colors.textMuted, textAlign: "center" },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    wrap: { alignItems: "center", justifyContent: "center", paddingVertical: spacing.xxxl, paddingHorizontal: spacing.xxl },
+    iconCircle: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primaryMuted,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: spacing.lg,
+    },
+    title: { fontSize: 15, fontWeight: "700", color: colors.text, marginBottom: spacing.xs },
+    message: { fontSize: 13, color: colors.textMuted, textAlign: "center" },
+  });
+}

@@ -1,8 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing } from "../theme";
+import { radius, spacing, useTheme, type ColorPalette } from "../theme";
 
 export function ChatBubble({ role, content }: { role: "user" | "model"; content: string }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const isUser = role === "user";
   return (
     <View style={[styles.row, isUser && styles.rowUser]}>
@@ -19,6 +22,8 @@ export function ChatBubble({ role, content }: { role: "user" | "model"; content:
 }
 
 export function ChatRecommendations({ items }: { items: string[] }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   if (!items.length) return null;
   return (
     <View style={styles.recWrap}>
@@ -32,44 +37,46 @@ export function ChatRecommendations({ items }: { items: string[] }) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, marginBottom: spacing.md, maxWidth: "88%" },
-  rowUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
-  avatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bubble: {
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  modelBubble: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderBottomLeftRadius: 4,
-  },
-  userBubble: {
-    backgroundColor: colors.primary,
-    borderBottomRightRadius: 4,
-  },
-  text: { fontSize: 14, lineHeight: 20, color: colors.text },
-  userText: { color: colors.textOnPrimary },
-  recWrap: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-    marginLeft: 34,
-  },
-  recRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
-  recText: { flex: 1, fontSize: 13, lineHeight: 19, color: colors.textSecondary },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    row: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, marginBottom: spacing.md, maxWidth: "88%" },
+    rowUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
+    avatar: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    bubble: {
+      borderRadius: radius.lg,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    modelBubble: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderBottomLeftRadius: 4,
+    },
+    userBubble: {
+      backgroundColor: colors.primary,
+      borderBottomRightRadius: 4,
+    },
+    text: { fontSize: 14, lineHeight: 20, color: colors.text },
+    userText: { color: colors.textOnPrimary },
+    recWrap: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+      marginLeft: 34,
+    },
+    recRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
+    recText: { flex: 1, fontSize: 13, lineHeight: 19, color: colors.textSecondary },
+  });
+}

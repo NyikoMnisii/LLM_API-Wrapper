@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from "react-native";
-import { colors, radius, spacing } from "../theme";
+import { radius, spacing, useTheme, type ColorPalette } from "../theme";
 
 type Variant = "primary" | "outline" | "ghost";
 
@@ -21,6 +22,8 @@ export function Button({
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const isDisabled = disabled || loading;
   return (
     <Pressable
@@ -54,20 +57,22 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    paddingVertical: 13,
-    paddingHorizontal: spacing.xl,
-    borderRadius: radius.pill,
-  },
-  primary: { backgroundColor: colors.primary },
-  outline: { backgroundColor: "transparent", borderWidth: 1.5, borderColor: colors.primary },
-  ghost: { backgroundColor: colors.primaryMuted },
-  disabled: { opacity: 0.5 },
-  pressed: { opacity: 0.85 },
-  label: { fontSize: 14, fontWeight: "700", color: colors.textOnPrimary },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    base: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.sm,
+      paddingVertical: 13,
+      paddingHorizontal: spacing.xl,
+      borderRadius: radius.pill,
+    },
+    primary: { backgroundColor: colors.primary },
+    outline: { backgroundColor: "transparent", borderWidth: 1.5, borderColor: colors.primary },
+    ghost: { backgroundColor: colors.primaryMuted },
+    disabled: { opacity: 0.5 },
+    pressed: { opacity: 0.85 },
+    label: { fontSize: 14, fontWeight: "700", color: colors.textOnPrimary },
+  });
+}

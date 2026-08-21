@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing } from "../theme";
+import { radius, spacing, useTheme, type ColorPalette } from "../theme";
 
 export function StatTile({
   icon,
   value,
   unit,
   label,
-  tone = colors.primary,
+  tone,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   value: string;
@@ -15,9 +16,11 @@ export function StatTile({
   label: string;
   tone?: string;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.tile}>
-      <Ionicons name={icon} size={18} color={tone} style={{ marginBottom: spacing.xs }} />
+      <Ionicons name={icon} size={18} color={tone ?? colors.primary} style={{ marginBottom: spacing.xs }} />
       <Text style={styles.value}>
         {value}
         {unit ? <Text style={styles.unit}> {unit}</Text> : null}
@@ -27,18 +30,20 @@ export function StatTile({
   );
 }
 
-const styles = StyleSheet.create({
-  tile: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    alignItems: "flex-start",
-    minWidth: 0,
-  },
-  value: { fontSize: 18, fontWeight: "800", color: colors.text },
-  unit: { fontSize: 12, fontWeight: "600", color: colors.textSecondary },
-  label: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
-});
+function makeStyles(colors: ColorPalette) {
+  return StyleSheet.create({
+    tile: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      alignItems: "flex-start",
+      minWidth: 0,
+    },
+    value: { fontSize: 18, fontWeight: "800", color: colors.text },
+    unit: { fontSize: 12, fontWeight: "600", color: colors.textSecondary },
+    label: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
+  });
+}

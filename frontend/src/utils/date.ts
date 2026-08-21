@@ -16,6 +16,18 @@ export function formatFullDate(isoDate: string): string {
   return `${date.getDate()} ${MONTH_LABELS[date.getMonth()]}`;
 }
 
+export function formatDateWithYear(isoDate: string): string {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return `${date.getDate()} ${MONTH_LABELS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+export function formatMonthYear(isoDate: string): string {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return `${MONTH_LABELS[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 export function formatTime(date: Date = new Date()): string {
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
