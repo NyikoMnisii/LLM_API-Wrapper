@@ -3,6 +3,13 @@ name = "agrilite-api"
 version = "0.1.0"
 description = "Modular FastAPI backend for the Agrilite AI agronomist platform."
 requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard]",
+    "httpx",
+    "supabase",
+    "google-genai",
+    "pydantic-settings",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
