@@ -78,11 +78,18 @@ class GeminiService:
 
                 contents.append(response.candidates[0].content)
                 contents.append(
-                    types.Content(
-                        role="function",
-                        parts=[types.Part.from_function_response(name=call.name, response=result)],
+                     types.Content(
+                         role="user",
+                         parts=[
+                             types.Part.from_function_response(
+                                 name=call.name,
+                                 response={"result": result},
+                                 id=call.id,
+                          )
+                        ],
                     )
                 )
+
 
             response = await self._client.generate_content(contents, config)
 
