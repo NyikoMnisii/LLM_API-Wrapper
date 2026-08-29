@@ -84,20 +84,33 @@ class GeminiService:
                              types.Part.from_function_response(
                                  name=call.name,
                                  response={"result": result},
-                                 id=call.id,
                           )
                         ],
                     )
                 )
 
-
-            response = await self._client.generate_content(contents, config)
+   # Gemini continue's after receiving tool results.
+            response = await self._client.generate_content(
+                contents,
+                config,
+            )
 
         if response.text is None:
-            raise LLMGenerationError("Model returned an empty response.")
+            raise LLMGenerationError(
+                "Model returned an empty response."
+            )
 
         try:
-            return AgronomistResponse.model_validate(parse_json_response(response.text))
+            return AgronomistResponse.model_validate(
+                parse_json_response(response.text)
+            )
+
         except (ValueError, TypeError) as exc:
-            logger.error("Failed to parse Gemini response: %s", response.text)
-            raise LLMGenerationError(f"Model returned an unparsable response: {exc}") from exc
+            logger.error(
+                "Failed to parse Gemini response: %s",
+                response.text,
+            )
+
+            raise LLMGenerationError(
+                f"Model returned an unparsable response: {exc}"
+            ) from exc
