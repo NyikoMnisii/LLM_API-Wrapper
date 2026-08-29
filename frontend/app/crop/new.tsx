@@ -64,7 +64,7 @@ export default function NewCropScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title="Add Crop" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <ChipPicker
           label="Field"
           options={fields.map((f) => ({ id: f.id, label: f.name }))}
@@ -100,6 +100,7 @@ export default function NewCropScreen() {
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   });
 }

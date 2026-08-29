@@ -54,7 +54,7 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Create account</Text>
           <Text style={styles.subtitle}>Join AgriLite AI</Text>
@@ -121,6 +121,7 @@ export default function SignUpScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { flexGrow: 1, justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
     header: { gap: 4, marginBottom: spacing.sm },
     title: { ...typography.display },

@@ -57,7 +57,7 @@ function AccountForm({
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <FormField label="Email" value={email} onChangeText={() => {}} editable={false} />
       <FormField label="Full Name" value={name} onChangeText={setName} placeholder="Your name" />
       <FormField label="Phone" value={phoneValue} onChangeText={setPhoneValue} keyboardType="phone-pad" placeholder="Optional" />
@@ -72,6 +72,7 @@ function AccountForm({
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     centered: { flex: 1, alignItems: "center", justifyContent: "center" },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   });

@@ -67,7 +67,7 @@ export default function NewActivityScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title="Log Activity" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <ChipPicker
           label="Activity Type"
           options={ACTIVITY_TYPES.map((t) => ({ id: t.id, label: t.label }))}
@@ -106,6 +106,7 @@ export default function NewActivityScreen() {
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   });
 }

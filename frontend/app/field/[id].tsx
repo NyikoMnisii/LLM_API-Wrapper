@@ -52,7 +52,7 @@ export default function FieldDetailScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title={field.name} />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <Card style={styles.summaryCard}>
           <View style={styles.summaryTop}>
             <Text style={styles.fieldName}>{field.name}</Text>
@@ -92,6 +92,7 @@ export default function FieldDetailScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     centered: { flex: 1, alignItems: "center", justifyContent: "center" },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
     summaryCard: { gap: spacing.sm },

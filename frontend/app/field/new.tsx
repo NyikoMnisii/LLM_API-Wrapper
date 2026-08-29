@@ -45,7 +45,7 @@ export default function NewFieldScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title="Add Field" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <FormField label="Field Name" value={name} onChangeText={setName} placeholder="e.g. North Field" />
         <FormField label="Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" placeholder="Optional" />
         <FormField label="Soil Type" value={soilType} onChangeText={setSoilType} placeholder="Optional" />
@@ -62,6 +62,7 @@ export default function NewFieldScreen() {
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   });
 }

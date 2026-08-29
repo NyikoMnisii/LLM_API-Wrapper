@@ -33,7 +33,7 @@ export default function NotificationPreferencesScreen() {
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
           {ROWS.map((row) => (
             <Card key={row.key} style={styles.row}>
               <View style={{ flex: 1 }}>
@@ -61,6 +61,7 @@ export default function NotificationPreferencesScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     centered: { flex: 1, alignItems: "center", justifyContent: "center" },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.sm },
     row: { flexDirection: "row", alignItems: "center", gap: spacing.md },

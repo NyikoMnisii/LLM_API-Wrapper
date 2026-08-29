@@ -52,7 +52,7 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Welcome to AgriLite AI</Text>
           <Text style={styles.subtitle}>Let&apos;s set up your farm to get started.</Text>
@@ -74,6 +74,7 @@ export default function OnboardingScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { flexGrow: 1, justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
     header: { gap: 4, marginBottom: spacing.sm },
     title: { ...typography.display, fontSize: 26 },

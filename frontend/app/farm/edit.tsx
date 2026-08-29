@@ -64,7 +64,7 @@ function EditFarmForm({ farm, onSaved }: { farm: Farm; onSaved: () => Promise<vo
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <FormField label="Farm Name" value={name} onChangeText={setName} />
       <FormField label="Location" value={location} onChangeText={setLocation} />
       <FormField label="Total Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" />
@@ -80,6 +80,7 @@ function EditFarmForm({ farm, onSaved }: { farm: Farm; onSaved: () => Promise<vo
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     centered: { flex: 1, alignItems: "center", justifyContent: "center" },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
   });

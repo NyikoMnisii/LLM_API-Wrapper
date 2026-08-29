@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { EmptyState, ScreenHeader } from "../../src/components";
 import type { GeocodeCandidate } from "../../src/api/geocoding";
 import { useResolvedLocation } from "../../src/hooks/useResolvedLocation";
@@ -82,14 +82,14 @@ export default function LocationSearchScreen() {
       ) : searched && results.length === 0 ? (
         <EmptyState icon="location-outline" title="No matches" message="Try a different spelling or a nearby town." />
       ) : (
-        <View style={{ gap: spacing.xs }}>
+        <ScrollView style={styles.scroll} contentContainerStyle={{ gap: spacing.xs }} keyboardShouldPersistTaps="handled">
           {results.map((r) => (
             <Pressable key={`${r.latitude},${r.longitude}`} style={styles.resultRow} onPress={() => handleSelect(r)}>
               <Ionicons name="location-outline" size={16} color={colors.textMuted} />
               <Text style={styles.resultText}>{r.label}</Text>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -98,6 +98,7 @@ export default function LocationSearchScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background, padding: spacing.xl, gap: spacing.lg },
+    scroll: { flex: 1 },
     searchBar: {
       flexDirection: "row",
       alignItems: "center",

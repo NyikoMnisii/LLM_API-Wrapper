@@ -14,7 +14,7 @@ export default function ForecastScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title="7-Day Forecast" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         {locationLabel ? <Text style={styles.location}>{locationLabel}</Text> : null}
 
         {loading && !forecast ? (
@@ -55,6 +55,7 @@ export default function ForecastScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
     location: { ...typography.caption, marginBottom: spacing.xs },
     stateWrap: { paddingVertical: spacing.xxxl, alignItems: "center" },

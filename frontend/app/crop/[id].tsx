@@ -51,7 +51,7 @@ export default function CropDetailScreen() {
   return (
     <View style={styles.screen}>
       <ScreenHeader showBack title={cropName} />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <Card style={styles.hero}>
           <Text style={styles.heroEmoji}>{crop.crop_types?.emoji ?? "🌱"}</Text>
           <Text style={styles.cropName}>{cropName}</Text>
@@ -119,6 +119,7 @@ function makeRowStyles(colors: ColorPalette) {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     centered: { flex: 1, alignItems: "center", justifyContent: "center" },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl, gap: spacing.lg },
     hero: { alignItems: "center", gap: spacing.sm },
