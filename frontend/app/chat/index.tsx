@@ -35,7 +35,7 @@ interface DisplayMessage {
 const GREETING: DisplayMessage = {
   id: "greeting",
   role: "model",
-  content: "Hi, I'm AgriLite AI. Ask me about crops, weather risk, pests, irrigation or anything else farming related.",
+  content: "Hi, I'm AgriLite AI. \nAsk me about crops, weather risk, pests, irrigation or anything else farming related.",
 };
 
 export default function ChatScreen() {

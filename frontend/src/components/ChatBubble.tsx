@@ -36,11 +36,23 @@ export function ChatRecommendations({ items }: { items: string[] }) {
     </View>
   );
 }
-
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
-    row: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, marginBottom: spacing.md, maxWidth: "88%" },
-    rowUser: { alignSelf: "flex-end", flexDirection: "row-reverse" },
+    row: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+      width: "100%",
+      minWidth: 0,
+    },
+
+    rowUser: {
+      alignSelf: "flex-end",
+      flexDirection: "row-reverse",
+      width: "100%",
+    },
+
     avatar: {
       width: 26,
       height: 26,
@@ -48,24 +60,40 @@ function makeStyles(colors: ColorPalette) {
       backgroundColor: colors.primary,
       alignItems: "center",
       justifyContent: "center",
+      flexShrink: 0,
     },
+
     bubble: {
+      flexShrink: 1,
+      maxWidth: "88%",
       borderRadius: radius.lg,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
     },
+
     modelBubble: {
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
       borderBottomLeftRadius: 4,
     },
+
     userBubble: {
       backgroundColor: colors.primary,
       borderBottomRightRadius: 4,
     },
-    text: { fontSize: 14, lineHeight: 20, color: colors.text },
-    userText: { color: colors.textOnPrimary },
+
+    text: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: colors.text,
+      flexShrink: 1,
+    },
+
+    userText: {
+      color: colors.textOnPrimary,
+    },
+
     recWrap: {
       backgroundColor: colors.surface,
       borderWidth: 1,
@@ -75,8 +103,21 @@ function makeStyles(colors: ColorPalette) {
       gap: spacing.sm,
       marginBottom: spacing.md,
       marginLeft: 34,
+      maxWidth: "88%",
     },
-    recRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
-    recText: { flex: 1, fontSize: 13, lineHeight: 19, color: colors.textSecondary },
+
+    recRow: {
+      flexDirection: "row",
+      gap: spacing.sm,
+      alignItems: "flex-start",
+    },
+
+    recText: {
+      flex: 1,
+      minWidth: 0,
+      fontSize: 13,
+      lineHeight: 19,
+      color: colors.textSecondary,
+    },
   });
 }
