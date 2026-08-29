@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { createActivity } from "../../src/api/supabase/activities";
 import type { ActivityType } from "../../src/api/supabase/types";
 import { Button, ChipPicker, FormField, ScreenHeader } from "../../src/components";
@@ -65,9 +65,9 @@ export default function NewActivityScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScreenHeader showBack title="Log Activity" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <ChipPicker
           label="Activity Type"
           options={ACTIVITY_TYPES.map((t) => ({ id: t.id, label: t.label }))}
@@ -99,7 +99,7 @@ export default function NewActivityScreen() {
 
         <Button label="Log Activity" onPress={handleCreate} loading={saving} disabled={!activityType} style={{ marginTop: spacing.lg }} />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

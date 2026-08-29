@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { updateFarm } from "../../src/api/supabase/farms";
 import type { Farm } from "../../src/api/supabase/types";
 import { Button, FormField, ScreenHeader } from "../../src/components";
@@ -64,16 +64,18 @@ function EditFarmForm({ farm, onSaved }: { farm: Farm; onSaved: () => Promise<vo
   }
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <FormField label="Farm Name" value={name} onChangeText={setName} />
-      <FormField label="Location" value={location} onChangeText={setLocation} />
-      <FormField label="Total Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" />
-      <FormField label="Farm Type" value={farmType} onChangeText={setFarmType} />
+    <KeyboardAvoidingView style={styles.scroll} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <FormField label="Farm Name" value={name} onChangeText={setName} />
+        <FormField label="Location" value={location} onChangeText={setLocation} />
+        <FormField label="Total Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" />
+        <FormField label="Farm Type" value={farmType} onChangeText={setFarmType} />
 
-      {error ? <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text> : null}
+        {error ? <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text> : null}
 
-      <Button label="Save Changes" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
-    </ScrollView>
+        <Button label="Save Changes" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

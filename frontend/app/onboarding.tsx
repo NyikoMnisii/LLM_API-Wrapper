@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { createFarm } from "../src/api/supabase/farms";
 import { Button, FormField } from "../src/components";
 import { useAuth } from "../src/hooks/useAuth";
@@ -51,8 +51,8 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <View style={styles.screen}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.title}>Welcome to AgriLite AI</Text>
           <Text style={styles.subtitle}>Let&apos;s set up your farm to get started.</Text>
@@ -67,7 +67,7 @@ export default function OnboardingScreen() {
 
         <Button label="Create My Farm" onPress={handleCreate} loading={saving} disabled={!name.trim()} style={styles.submit} />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

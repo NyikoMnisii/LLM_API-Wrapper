@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { router } from "expo-router";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, FormField, ScreenHeader } from "../../src/components";
 import { useAuth } from "../../src/hooks/useAuth";
 import { useProfile } from "../../src/hooks/useProfile";
@@ -57,15 +57,17 @@ function AccountForm({
   }
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <FormField label="Email" value={email} onChangeText={() => {}} editable={false} />
-      <FormField label="Full Name" value={name} onChangeText={setName} placeholder="Your name" />
-      <FormField label="Phone" value={phoneValue} onChangeText={setPhoneValue} keyboardType="phone-pad" placeholder="Optional" />
+    <KeyboardAvoidingView style={styles.scroll} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <FormField label="Email" value={email} onChangeText={() => {}} editable={false} />
+        <FormField label="Full Name" value={name} onChangeText={setName} placeholder="Your name" />
+        <FormField label="Phone" value={phoneValue} onChangeText={setPhoneValue} keyboardType="phone-pad" placeholder="Optional" />
 
-      {error ? <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text> : null}
+        {error ? <Text style={{ color: colors.danger, fontSize: 12 }}>{error}</Text> : null}
 
-      <Button label="Save Changes" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
-    </ScrollView>
+        <Button label="Save Changes" onPress={handleSave} loading={saving} style={{ marginTop: spacing.lg }} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

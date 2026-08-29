@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { createCrop } from "../../src/api/supabase/crops";
 import { Button, ChipPicker, EmptyState, FormField, ScreenHeader } from "../../src/components";
 import { useCropTypes } from "../../src/hooks/useCrops";
@@ -62,9 +62,9 @@ export default function NewCropScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScreenHeader showBack title="Add Crop" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <ChipPicker
           label="Field"
           options={fields.map((f) => ({ id: f.id, label: f.name }))}
@@ -93,7 +93,7 @@ export default function NewCropScreen() {
           style={{ marginTop: spacing.lg }}
         />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

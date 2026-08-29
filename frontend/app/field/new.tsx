@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { createField } from "../../src/api/supabase/fields";
 import { Button, FormField, ScreenHeader } from "../../src/components";
 import { useFarm } from "../../src/hooks/useFarm";
@@ -43,9 +43,9 @@ export default function NewFieldScreen() {
   }
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScreenHeader showBack title="Add Field" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <FormField label="Field Name" value={name} onChangeText={setName} placeholder="e.g. North Field" />
         <FormField label="Area (ha)" value={hectares} onChangeText={setHectares} keyboardType="decimal-pad" placeholder="Optional" />
         <FormField label="Soil Type" value={soilType} onChangeText={setSoilType} placeholder="Optional" />
@@ -55,7 +55,7 @@ export default function NewFieldScreen() {
 
         <Button label="Add Field" onPress={handleCreate} loading={saving} disabled={!name.trim()} style={{ marginTop: spacing.lg }} />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
