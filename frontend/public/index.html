@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>%WEB_TITLE%</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /*
+        `height: 100%` on html/body tracks the *layout* viewport on mobile
+        browsers (as tall as the page would be with the address bar hidden),
+        not the visible one. While the address bar is shown, that leaves the
+        bottom of the app - including the bottom tab bar - rendered below the
+        visible area, with no way to reach it since body scrolling is
+        disabled below. Pinch-zooming forces the browser to recompute layout
+        against the real viewport, which is why it "fixes" the scroll.
+        `100dvh` tracks the actual visible viewport and resizes as browser
+        chrome shows/hides, so we prefer it where supported.
+      */
+      html,
+      body {
+        height: 100%;
+      }
+      @supports (height: 100dvh) {
+        html,
+        body {
+          height: 100dvh;
+        }
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+      @supports (height: 100dvh) {
+        #root {
+          height: 100dvh;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  </body>
+</html>
