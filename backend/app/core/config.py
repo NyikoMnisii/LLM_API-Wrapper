@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     weather_geocode_url: str = "https://geocoding-api.open-meteo.com/v1/search"
     weather_forecast_url: str = "https://api.open-meteo.com/v1/forecast"
-    http_timeout_seconds: float = 10.0
+    http_timeout_seconds: float = 15.0
     geocode_cache_ttl_seconds: int = 3600
     geocode_cache_size: int = 256
 
