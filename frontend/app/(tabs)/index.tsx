@@ -10,6 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card, ForecastDayPill, HeaderIconButton, SectionHeader, WeatherGauge } from "../../src/components";
 import { useUnreadAlertCount } from "../../src/hooks/useAlerts";
 import { useChatConversations } from "../../src/hooks/useChatConversations";
@@ -38,6 +39,7 @@ export default function HomeScreen() {
   const { forecast, error, loading, refresh, locationLabel, isFallback } = useWeather(5);
   const { isManual, loading: locatingLabel } = useResolvedLocation();
   const { colors, typography } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors, typography), [colors, typography]);
   const { farm } = useFarm();
   const { count: unreadAlerts } = useUnreadAlertCount(farm?.id);
@@ -53,12 +55,8 @@ export default function HomeScreen() {
   }, [forecast]);
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl tintColor={colors.primary} refreshing={loading} onRefresh={refresh} />}
-    >
-      <View style={styles.header}>
+    <View style={styles.screen}>
+      <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
         <Text style={styles.brand}>
           Agri<Text style={{ color: colors.primary }}>Lite</Text> Ai
         </Text>
@@ -68,155 +66,170 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <Pressable style={styles.locationRow} onPress={() => router.push("/location/search")}>
-        <View style={styles.locationLeft}>
-          <Ionicons name="location" size={16} color={colors.primary} />
-          <View>
-            <Text style={styles.locationName}>
-              {locatingLabel ? "Locating…" : locationLabel ?? "Location unavailable"}
-            </Text>
-            <View style={styles.locationSubRow}>
-              <Text style={styles.locationSub}>
-                {isManual ? "Manually set" : isFallback ? "Approximate Location" : "Current Location"}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl tintColor={colors.primary} refreshing={loading} onRefresh={refresh} />}
+      >
+        <Pressable style={styles.locationRow} onPress={() => router.push("/location/search")}>
+          <View style={styles.locationLeft}>
+            <Ionicons name="location" size={16} color={colors.primary} />
+            <View>
+              <Text style={styles.locationName}>
+                {locatingLabel ? "Locating…" : locationLabel ?? "Location unavailable"}
               </Text>
-              <Ionicons name="chevron-down" size={11} color={colors.textMuted} />
+              <View style={styles.locationSubRow}>
+                <Text style={styles.locationSub}>
+                  {isManual ? "Manually set" : isFallback ? "Approximate Location" : "Current Location"}
+                </Text>
+                <Ionicons name="chevron-down" size={11} color={colors.textMuted} />
+              </View>
             </View>
           </View>
-        </View>
-        <View style={styles.locationRight}>
-          <Text style={styles.dateText}>{todayLabel()}</Text>
-          <View style={styles.liveDot} />
-        </View>
-      </Pressable>
+          <View style={styles.locationRight}>
+            <Text style={styles.dateText}>{todayLabel()}</Text>
+            <View style={styles.liveDot} />
+          </View>
+        </Pressable>
 
-      {loading && !forecast ? (
-        <Card style={styles.stateCard}>
-          <ActivityIndicator color={colors.primary} />
-          <Text style={styles.stateText}>Fetching your local forecast…</Text>
-        </Card>
-      ) : error ? (
-        <Card style={styles.stateCard}>
-          <Ionicons name="cloud-offline-outline" size={28} color={colors.danger} />
-          <Text style={styles.stateText}>{error}</Text>
-          <Pressable onPress={refresh}>
-            <Text style={styles.retryText}>Tap to retry</Text>
+        {loading && !forecast ? (
+          <Card style={styles.stateCard}>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={styles.stateText}>Fetching your local forecast…</Text>
+          </Card>
+        ) : error ? (
+          <Card style={styles.stateCard}>
+            <Ionicons name="cloud-offline-outline" size={28} color={colors.danger} />
+            <Text style={styles.stateText}>{error}</Text>
+            <Pressable onPress={refresh}>
+              <Text style={styles.retryText}>Tap to retry</Text>
+            </Pressable>
+          </Card>
+        ) : forecast?.status === "REQUIRES_CLARIFICATION" ? (
+          <Card style={styles.stateCard}>
+            <Ionicons name="help-circle-outline" size={28} color={colors.warning} />
+            <Text style={styles.stateText}>{forecast.reason ?? "We need a bit more detail on your location."}</Text>
+          </Card>
+        ) : forecast?.status === "SUCCESS" ? (
+          <>
+            <Card style={styles.weatherCard}>
+              <View style={styles.gaugeRow}>
+                <WeatherGauge
+                  min={forecast.min_temperatures_celsius[0]}
+                  max={forecast.max_temperatures_celsius[0]}
+                  current={(forecast.min_temperatures_celsius[0] + forecast.max_temperatures_celsius[0]) / 2}
+                />
+                <View style={styles.conditionCol}>
+                  {condition ? <Ionicons name={condition.icon} size={40} color={colors.primary} /> : null}
+                  <Text style={styles.conditionText}>{condition?.label}</Text>
+                </View>
+              </View>
+
+              <View style={styles.metricsRow}>
+                <View style={styles.metric}>
+                  <Ionicons name="rainy-outline" size={16} color={colors.info} />
+                  <Text style={styles.metricValue}>{(forecast.total_precipitation_mm[0] ?? 0).toFixed(1)} mm</Text>
+                  <Text style={styles.metricLabel}>Precipitation</Text>
+                </View>
+                <View style={styles.metric}>
+                  <Ionicons
+                    name={forecast.frost_warning ? "snow" : "thermometer-outline"}
+                    size={16}
+                    color={forecast.frost_warning ? colors.info : colors.textSecondary}
+                  />
+                  <Text style={styles.metricValue}>{forecast.frost_warning ? "Yes" : "No"}</Text>
+                  <Text style={styles.metricLabel}>Frost Risk</Text>
+                </View>
+                <View style={styles.metric}>
+                  <Ionicons
+                    name="water-outline"
+                    size={16}
+                    color={forecast.high_humidity_fungal_risk ? colors.warning : colors.textSecondary}
+                  />
+                  <Text style={styles.metricValue}>{forecast.high_humidity_fungal_risk ? "High" : "Low"}</Text>
+                  <Text style={styles.metricLabel}>Fungal Risk</Text>
+                </View>
+              </View>
+            </Card>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastStrip} contentContainerStyle={{ gap: spacing.sm }}>
+              {forecast.dates.map((date, idx) => (
+                <ForecastDayPill
+                  key={date}
+                  label={dayLabel(date, idx)}
+                  max={forecast.max_temperatures_celsius[idx]}
+                  hasRain={(forecast.total_precipitation_mm[idx] ?? 0) > 0}
+                  active={idx === 0}
+                />
+              ))}
+              <Pressable style={styles.forecastMore} onPress={() => router.push("/forecast")}>
+                <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+                <Text style={styles.forecastMoreText}>7-Day{"\n"}Forecast</Text>
+              </Pressable>
+            </ScrollView>
+          </>
+        ) : null}
+
+        <Card style={styles.aiCard}>
+          <View style={styles.aiRow}>
+            <View style={styles.aiTextCol}>
+              <View style={styles.aiTag}>
+                <Ionicons name="sparkles" size={13} color={colors.primary} />
+                <Text style={styles.aiTagText}>AI Access</Text>
+              </View>
+              <Text style={styles.aiTitle}>Get expert advice{"\n"}powered by AI</Text>
+              <Text style={styles.aiSubtitle}>Ask questions about crops, weather, pests, diseases and more.</Text>
+            </View>
+            <View style={styles.aiIconWrap}>
+              <Ionicons name="leaf" size={28} color={colors.textOnPrimary} />
+            </View>
+          </View>
+          <Pressable style={styles.aiButton} onPress={() => router.push("/chat")}>
+            <Text style={styles.aiButtonText}>Ask AgriLite AI</Text>
+            <Ionicons name="arrow-forward" size={16} color={colors.textOnPrimary} />
           </Pressable>
         </Card>
-      ) : forecast?.status === "REQUIRES_CLARIFICATION" ? (
-        <Card style={styles.stateCard}>
-          <Ionicons name="help-circle-outline" size={28} color={colors.warning} />
-          <Text style={styles.stateText}>{forecast.reason ?? "We need a bit more detail on your location."}</Text>
-        </Card>
-      ) : forecast?.status === "SUCCESS" ? (
-        <>
-          <Card style={styles.weatherCard}>
-            <View style={styles.gaugeRow}>
-              <WeatherGauge
-                min={forecast.min_temperatures_celsius[0]}
-                max={forecast.max_temperatures_celsius[0]}
-                current={(forecast.min_temperatures_celsius[0] + forecast.max_temperatures_celsius[0]) / 2}
-              />
-              <View style={styles.conditionCol}>
-                {condition ? <Ionicons name={condition.icon} size={40} color={colors.primary} /> : null}
-                <Text style={styles.conditionText}>{condition?.label}</Text>
-              </View>
+
+        {recentChats.length > 0 ? (
+          <>
+            <SectionHeader icon="chatbubble-ellipses-outline" title="Recent Chats" actionLabel="View all" onAction={() => router.push("/chat")} />
+            <View style={{ gap: spacing.sm }}>
+              {recentChats.map((chat) => (
+                <Pressable key={chat.id} onPress={() => router.push({ pathname: "/chat", params: { id: chat.id } })}>
+                  <Card style={styles.chatRow}>
+                    <View style={styles.chatIcon}>
+                      <Ionicons name="chatbubble-ellipses" size={16} color={colors.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.chatQuestion} numberOfLines={1}>{chat.title ?? "Untitled chat"}</Text>
+                      <Text style={styles.chatMeta}>{formatDateWithYear(chat.updated_at)}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+                  </Card>
+                </Pressable>
+              ))}
             </View>
-
-            <View style={styles.metricsRow}>
-              <View style={styles.metric}>
-                <Ionicons name="rainy-outline" size={16} color={colors.info} />
-                <Text style={styles.metricValue}>{(forecast.total_precipitation_mm[0] ?? 0).toFixed(1)} mm</Text>
-                <Text style={styles.metricLabel}>Precipitation</Text>
-              </View>
-              <View style={styles.metric}>
-                <Ionicons
-                  name={forecast.frost_warning ? "snow" : "thermometer-outline"}
-                  size={16}
-                  color={forecast.frost_warning ? colors.info : colors.textSecondary}
-                />
-                <Text style={styles.metricValue}>{forecast.frost_warning ? "Yes" : "No"}</Text>
-                <Text style={styles.metricLabel}>Frost Risk</Text>
-              </View>
-              <View style={styles.metric}>
-                <Ionicons
-                  name="water-outline"
-                  size={16}
-                  color={forecast.high_humidity_fungal_risk ? colors.warning : colors.textSecondary}
-                />
-                <Text style={styles.metricValue}>{forecast.high_humidity_fungal_risk ? "High" : "Low"}</Text>
-                <Text style={styles.metricLabel}>Fungal Risk</Text>
-              </View>
-            </View>
-          </Card>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastStrip} contentContainerStyle={{ gap: spacing.sm }}>
-            {forecast.dates.map((date, idx) => (
-              <ForecastDayPill
-                key={date}
-                label={dayLabel(date, idx)}
-                max={forecast.max_temperatures_celsius[idx]}
-                hasRain={(forecast.total_precipitation_mm[idx] ?? 0) > 0}
-                active={idx === 0}
-              />
-            ))}
-            <Pressable style={styles.forecastMore} onPress={() => router.push("/forecast")}>
-              <Ionicons name="calendar-outline" size={18} color={colors.primary} />
-              <Text style={styles.forecastMoreText}>7-Day{"\n"}Forecast</Text>
-            </Pressable>
-          </ScrollView>
-        </>
-      ) : null}
-
-      <Card style={styles.aiCard}>
-        <View style={styles.aiRow}>
-          <View style={styles.aiTextCol}>
-            <View style={styles.aiTag}>
-              <Ionicons name="sparkles" size={13} color={colors.primary} />
-              <Text style={styles.aiTagText}>AI Access</Text>
-            </View>
-            <Text style={styles.aiTitle}>Get expert advice{"\n"}powered by AI</Text>
-            <Text style={styles.aiSubtitle}>Ask questions about crops, weather, pests, diseases and more.</Text>
-          </View>
-          <View style={styles.aiIconWrap}>
-            <Ionicons name="leaf" size={28} color={colors.textOnPrimary} />
-          </View>
-        </View>
-        <Pressable style={styles.aiButton} onPress={() => router.push("/chat")}>
-          <Text style={styles.aiButtonText}>Ask AgriLite AI</Text>
-          <Ionicons name="arrow-forward" size={16} color={colors.textOnPrimary} />
-        </Pressable>
-      </Card>
-
-      {recentChats.length > 0 ? (
-        <>
-          <SectionHeader icon="chatbubble-ellipses-outline" title="Recent Chats" actionLabel="View all" onAction={() => router.push("/chat")} />
-          <View style={{ gap: spacing.sm }}>
-            {recentChats.map((chat) => (
-              <Pressable key={chat.id} onPress={() => router.push({ pathname: "/chat", params: { id: chat.id } })}>
-                <Card style={styles.chatRow}>
-                  <View style={styles.chatIcon}>
-                    <Ionicons name="chatbubble-ellipses" size={16} color={colors.primary} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.chatQuestion} numberOfLines={1}>{chat.title ?? "Untitled chat"}</Text>
-                    <Text style={styles.chatMeta}>{formatDateWithYear(chat.updated_at)}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-                </Card>
-              </Pressable>
-            ))}
-          </View>
-        </>
-      ) : null}
-    </ScrollView>
+          </>
+        ) : null}
+      </ScrollView>
+    </View>
   );
 }
 
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    scroll: { flex: 1 },
     content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2, gap: spacing.lg },
-    header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.xl,
+      paddingBottom: spacing.md,
+      backgroundColor: colors.background,
+      zIndex: 10,
+    },
     brand: { fontSize: 22, fontWeight: "800", color: colors.text },
     headerIcons: { flexDirection: "row", gap: spacing.sm },
 
