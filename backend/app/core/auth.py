@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Optional
@@ -34,7 +35,11 @@ async def get_current_user(authorization: Optional[str] = Header(default=None)) 
     settings = get_settings()
 
     try:
-        signing_key = _jwk_client().get_signing_key_from_jwt(token)
+        # PyJWKClient does a blocking HTTP fetch on a cache miss (every ~5
+        # minutes, or on key rotation); run it off-thread so it can't stall
+        # the whole async event loop - and every other in-flight request -
+        # for the duration of that call.
+        signing_key = await asyncio.to_thread(_jwk_client().get_signing_key_from_jwt, token)
         claims = jwt.decode(
             token,
             signing_key.key,

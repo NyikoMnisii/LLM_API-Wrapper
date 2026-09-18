@@ -40,9 +40,9 @@ export default function OnboardingScreen() {
         longitude: location?.longitude ?? null,
         total_hectares: parsedHectares,
       });
-      // Root layout's own useFarm() instance re-fetches independently and
-      // flips the Stack.Protected guard once it sees the new row; refreshing
-      // this instance too just avoids a stale flash if this screen is kept mounted.
+      // useFarm() is shared context state, so this refresh is also what the
+      // root layout's Stack.Protected guard sees - it flips to the tabs as
+      // soon as this resolves.
       await refreshFarm();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't create your farm right now.");

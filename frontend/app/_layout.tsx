@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../src/hooks/useAuth";
-import { useFarm } from "../src/hooks/useFarm";
+import { FarmProvider, useFarm } from "../src/hooks/useFarm";
 import { LocationProvider } from "../src/hooks/useResolvedLocation";
 import { ThemeProvider, useTheme } from "../src/theme";
 
@@ -78,11 +78,13 @@ export default function RootLayout() {
     <ThemeProvider>
       <SafeAreaProvider>
         <AuthProvider>
-          <LocationProvider>
-            <WebFrame>
-              <RootNavigator />
-            </WebFrame>
-          </LocationProvider>
+          <FarmProvider>
+            <LocationProvider>
+              <WebFrame>
+                <RootNavigator />
+              </WebFrame>
+            </LocationProvider>
+          </FarmProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </ThemeProvider>
