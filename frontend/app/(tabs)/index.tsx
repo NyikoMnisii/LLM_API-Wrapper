@@ -67,7 +67,6 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView
-        style={styles.scroll}
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl tintColor={colors.primary} refreshing={loading} onRefresh={refresh} />}
       >
@@ -219,8 +218,15 @@ export default function HomeScreen() {
 function makeStyles(colors: ColorPalette, typography: Typography) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
-    scroll: { flex: 1 },
-    content: { padding: spacing.xl, paddingBottom: spacing.xxxl * 2, gap: spacing.lg },
+    scroll: { 
+      flex: 1 
+    },
+    content: { 
+      flexGrow: 1,
+      padding: spacing.xl, 
+      paddingBottom: spacing.xxxl * 2, 
+      gap: spacing.lg 
+    },
     header: {
       flexDirection: "row",
       alignItems: "center",
