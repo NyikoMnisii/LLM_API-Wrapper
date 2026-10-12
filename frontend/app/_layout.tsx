@@ -96,25 +96,32 @@ const styles = StyleSheet.create({
 
 const webStyles = {
   webOuter: { 
-    flex: 1, 
     alignItems: "center",
     ...Platform.select({
+      native: {
+        flex: 1, // Keep flex behavior only on native mobile wrappers
+      },
       web: {
         height: "100vh",      
-        overflow: "hidden",   
         width: "100vw",
+        overflow: "hidden",   
+        display: "flex",
+        flexDirection: "column",
       },
     }),
   } as ViewStyle,
   
   webFrame: { 
-    flex: 1, 
     width: "100%", 
     maxWidth: 480,
     ...Platform.select({
+      native: {
+        flex: 1, // Keep flex behavior only on native mobile wrappers
+      },
       web: {
         height: "100%",       
         display: "flex",
+        flexDirection: "column",
       },
     }),
   } as ViewStyle,
