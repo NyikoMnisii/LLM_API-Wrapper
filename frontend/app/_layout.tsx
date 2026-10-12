@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import type { ReactNode } from "react";
-import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, View, type ViewStyle } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../src/hooks/useAuth";
 import { FarmProvider, useFarm } from "../src/hooks/useFarm";
@@ -15,7 +15,8 @@ function RootNavigator() {
 
   if (isLoading || (session && farmLoading)) {
     return (
-      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+      // Flattened structure avoids array-level style mismatch constraints
+      <View style={{ ...styles.loading, backgroundColor: colors.background as string }}>
         <ActivityIndicator color={colors.primary} />
       </View>
     );
@@ -27,7 +28,7 @@ function RootNavigator() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: colors.background },
+          contentStyle: { backgroundColor: colors.background as string },
         }}
       >
         <Stack.Protected guard={!session}>
@@ -60,15 +61,11 @@ function RootNavigator() {
   );
 }
 
-// On a desktop browser the RN-Web app otherwise fills the full window width;
-// this constrains it to a phone-sized column so it doesn't stretch edge to
-// edge. No-op on native (doesn't wrap there) and effectively a no-op on an
-// actual mobile browser too, since 480px already exceeds real phone widths.
 function WebFrame({ children }: { children: ReactNode }) {
   if (Platform.OS !== "web") return <>{children}</>;
   return (
-    <View style={styles.webOuter}>
-      <View style={styles.webFrame}>{children}</View>
+    <View style={webStyles.webOuter}>
+      <View style={webStyles.webFrame}>{children}</View>
     </View>
   );
 }
@@ -91,8 +88,34 @@ export default function RootLayout() {
   );
 }
 
+// Plain cross-platform styles handled natively via StyleSheet
 const styles = StyleSheet.create({
   loading: { flex: 1, alignItems: "center", justifyContent: "center" },
-  webOuter: { flex: 1, alignItems: "center" },
-  webFrame: { flex: 1, width: "100%", maxWidth: 480 },
 });
+
+
+const webStyles = {
+  webOuter: { 
+    flex: 1, 
+    alignItems: "center",
+    ...Platform.select({
+      web: {
+        height: "100vh",      
+        overflow: "hidden",   
+        width: "100vw",
+      },
+    }),
+  } as ViewStyle,
+  
+  webFrame: { 
+    flex: 1, 
+    width: "100%", 
+    maxWidth: 480,
+    ...Platform.select({
+      web: {
+        height: "100%",       
+        display: "flex",
+      },
+    }),
+  } as ViewStyle,
+};

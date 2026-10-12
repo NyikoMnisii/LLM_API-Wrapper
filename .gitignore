@@ -16,3 +16,5 @@ venv/
 
 # Supabase CLI
 supabase/.temp/
+.mcp.json
+skills-lock.json
