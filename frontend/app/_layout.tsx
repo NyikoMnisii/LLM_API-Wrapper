@@ -104,8 +104,9 @@ const webStyles = {
         flex: 1,
       },
       web: {
-        minHeight: "100vh",
+        height: "100vh",
         width: "100%",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
       },
@@ -120,8 +121,8 @@ const webStyles = {
         flex: 1,
       },
       web: {
-        minHeight: "100vh",
-        flexGrow: 1,
+        flex: 1,
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
       },

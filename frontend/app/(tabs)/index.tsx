@@ -66,10 +66,18 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl tintColor={colors.primary} refreshing={loading} onRefresh={refresh} />}
-      >
+        <ScrollView
+          style={{ flex: 1, minHeight: 0 }}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator
+          refreshControl={
+            <RefreshControl
+              tintColor={colors.primary}
+              refreshing={loading}
+              onRefresh={refresh}
+            />
+          }
+        >
         <Pressable style={styles.locationRow} onPress={() => router.push("/location/search")}>
           <View style={styles.locationLeft}>
             <Ionicons name="location" size={16} color={colors.primary} />
