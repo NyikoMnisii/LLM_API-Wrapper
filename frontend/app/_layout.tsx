@@ -28,7 +28,9 @@ function RootNavigator() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: colors.background as string },
+          contentStyle: {
+            backgroundColor: colors.background as string,
+          },
         }}
       >
         <Stack.Protected guard={!session}>
