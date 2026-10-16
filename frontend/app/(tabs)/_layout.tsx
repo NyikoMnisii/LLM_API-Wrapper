@@ -13,7 +13,12 @@ export default function TabsLayout() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
-    <Tabs style={styles.tabsRoot}>
+    <Tabs
+      style={[
+        styles.tabsRoot,
+        Platform.OS === "web" ? { minHeight: 0, overflow: "hidden" } : undefined,
+      ]}
+    >
       <TabSlot />
 
       <TabList style={{ display: "none" }}>
@@ -41,7 +46,11 @@ export default function TabsLayout() {
 
 function makeStyles(colors: ColorPalette) {
   return StyleSheet.create({
-    tabsRoot: { flex: 1, backgroundColor: colors.background },
+    tabsRoot: {
+      flex: 1,
+      minHeight: 0,
+      backgroundColor: colors.background,
+    },
     wrap: {
       backgroundColor: colors.backgroundElevated,
       borderTopWidth: 1,

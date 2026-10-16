@@ -102,8 +102,9 @@ const webStyles = {
     ...Platform.select({
       native: { flex: 1 },
       web: {
-        height: "100vh" as unknown as ViewStyle["height"],
-        width: "100vw" as unknown as ViewStyle["width"],
+        height: "100%" as ViewStyle["height"],
+        width: "100%" as ViewStyle["width"],
+        minHeight: 0,
         overflow: "hidden" as const,
         display: "flex" as const,
         flexDirection: "column" as const,
