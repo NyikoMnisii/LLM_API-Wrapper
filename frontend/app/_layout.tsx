@@ -95,31 +95,31 @@ const styles = StyleSheet.create({
 
 
 const webStyles = {
-  webOuter: { 
+  webOuter: {
     alignItems: "center",
     ...Platform.select({
       native: {
-        flex: 1, // Keep flex behavior only on native mobile wrappers
+        flex: 1,
       },
       web: {
-        height: "100vh",      
-        width: "100vw",
-        overflow: "hidden",   
+        minHeight: "100vh",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
       },
     }),
   } as ViewStyle,
-  
-  webFrame: { 
-    width: "100%", 
+
+  webFrame: {
+    width: "100%",
     maxWidth: 480,
     ...Platform.select({
       native: {
-        flex: 1, // Keep flex behavior only on native mobile wrappers
+        flex: 1,
       },
       web: {
-        height: "100%",       
+        minHeight: "100vh",
+        flexGrow: 1,
         display: "flex",
         flexDirection: "column",
       },
