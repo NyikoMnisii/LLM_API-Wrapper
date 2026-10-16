@@ -216,16 +216,18 @@ export default function HomeScreen() {
 }
 
 function makeStyles(colors: ColorPalette, typography: Typography) {
-  return StyleSheet.create({
-    screen: { flex: 1, backgroundColor: colors.background },
-    scroll: { 
-      flex: 1 
+    return StyleSheet.create({
+    screen: {
+      flex: 1,
+      minHeight: 0,
+      backgroundColor: colors.background,
     },
-    content: { 
+
+    content: {
       flexGrow: 1,
-      padding: spacing.xl, 
-      paddingBottom: spacing.xxxl * 2, 
-      gap: spacing.lg 
+      padding: spacing.xl,
+      paddingBottom: spacing.xxxl * 2,
+      gap: spacing.lg,
     },
     header: {
       flexDirection: "row",
