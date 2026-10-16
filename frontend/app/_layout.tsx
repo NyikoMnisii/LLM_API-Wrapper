@@ -100,15 +100,13 @@ const webStyles = {
   webOuter: {
     alignItems: "center",
     ...Platform.select({
-      native: {
-        flex: 1,
-      },
+      native: { flex: 1 },
       web: {
-        height: "100vh",
-        width: "100%",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
+        height: "100vh" as unknown as ViewStyle["height"],
+        width: "100vw" as unknown as ViewStyle["width"],
+        overflow: "hidden" as const,
+        display: "flex" as const,
+        flexDirection: "column" as const,
       },
     }),
   } as ViewStyle,
@@ -117,14 +115,12 @@ const webStyles = {
     width: "100%",
     maxWidth: 480,
     ...Platform.select({
-      native: {
-        flex: 1,
-      },
+      native: { flex: 1 },
       web: {
         flex: 1,
         minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
+        display: "flex" as const,
+        flexDirection: "column" as const,
       },
     }),
   } as ViewStyle,

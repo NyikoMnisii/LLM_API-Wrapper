@@ -55,7 +55,7 @@ export default function HomeScreen() {
   }, [forecast]);
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { flex: 1, minHeight: 0 }]}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
         <Text style={styles.brand}>
           Agri<Text style={{ color: colors.primary }}>Lite</Text> Ai
@@ -66,18 +66,17 @@ export default function HomeScreen() {
         </View>
       </View>
 
-        <ScrollView
-          style={{ flex: 1, minHeight: 0 }}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator
-          refreshControl={
-            <RefreshControl
-              tintColor={colors.primary}
-              refreshing={loading}
-              onRefresh={refresh}
-            />
-          }
-        >
+      <ScrollView
+            style={{ flex: 1, minHeight: 0 }}
+            contentContainerStyle={styles.content}
+            refreshControl={
+              <RefreshControl
+                tintColor={colors.primary}
+                refreshing={loading}
+                onRefresh={refresh}
+              />
+            }
+          >
         <Pressable style={styles.locationRow} onPress={() => router.push("/location/search")}>
           <View style={styles.locationLeft}>
             <Ionicons name="location" size={16} color={colors.primary} />
